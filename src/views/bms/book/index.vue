@@ -22,8 +22,18 @@
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.username" class="input-width" placeholder="帐号" clearable />
+          <el-form-item label="图书名称：">
+            <el-input v-model="listQuery.name" class="input-width" placeholder="图书名称" clearable />
+          </el-form-item>
+          <el-form-item label="图书分类：">
+            <!--            <el-cascader-->
+            <!--              v-model="selectBookCateValue"-->
+            <!--              clearable-->
+            <!--              :options="bookCateOptions"-->
+            <!--            />-->
+          </el-form-item>
+          <el-form-item label="出版社：">
+            <el-input v-model="listQuery.press" class="input-width" placeholder="出版社" clearable />
           </el-form-item>
         </el-form>
       </div>
@@ -35,7 +45,7 @@
     </el-card>
     <div class="table-container">
       <el-table
-        ref="adminTable"
+        ref="bookTable"
         v-loading="listLoading"
         :data="list"
         style="width: 100%;"
@@ -44,30 +54,31 @@
         <el-table-column label="编号" width="100" align="center">
           <template slot-scope="scope">{{ scope.row.id }}</template>
         </el-table-column>
-        <el-table-column label="帐号" align="center">
-          <template slot-scope="scope">{{ scope.row.username }}</template>
-        </el-table-column>
-        <el-table-column label="昵称" align="center">
-          <template slot-scope="scope">{{ scope.row.nickName }}</template>
-        </el-table-column>
-        <el-table-column label="邮箱" align="center">
-          <template slot-scope="scope">{{ scope.row.email }}</template>
-        </el-table-column>
-        <el-table-column label="添加时间" width="160" align="center">
-          <template slot-scope="scope">{{ scope.row.createTime | formatDateTime }}</template>
-        </el-table-column>
-<!--        <el-table-column label="最后登录" width="160" align="center">-->
-<!--          <template slot-scope="scope">{{ scope.row.loginTime | formatDateTime }}</template>-->
-<!--        </el-table-column>-->
-        <el-table-column label="是否启用" width="140" align="center">
+        <el-table-column label="封面" align="center">
           <template slot-scope="scope">
-            <el-switch
-              v-model="scope.row.status"
-              :active-value="1"
-              :inactive-value="0"
-              @change="handleStatusChange(scope.$index, scope.row)"
-            />
+            <img :src="scope.row.img" style="width: 50px; height: 50px">
           </template>
+        </el-table-column>
+        <el-table-column label="名称" align="center">
+          <template slot-scope="scope">{{ scope.row.name }}</template>
+        </el-table-column>
+        <el-table-column label="作者" align="center">
+          <template slot-scope="scope">{{ scope.row.author }}</template>
+        </el-table-column>
+        <el-table-column label="价格" align="center">
+          <template slot-scope="scope">{{ scope.row.price }}</template>
+        </el-table-column>
+        <el-table-column label="分类" align="center">
+          <template slot-scope="scope">{{ scope.row.category }}</template>
+        </el-table-column>
+        <el-table-column label="出版社" align="center">
+          <template slot-scope="scope">{{ scope.row.press }}</template>
+        </el-table-column>
+        <el-table-column label="库存" align="center">
+          <template slot-scope="scope">{{ scope.row.stock }}</template>
+        </el-table-column>
+        <el-table-column label="是否有效" width="140" align="center">
+          <template slot-scope="scope">{{ scope.row.status === 0 ? "否" : "是" }}</template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
@@ -101,32 +112,53 @@
       />
     </div>
     <el-dialog
-      :title="isEdit?'编辑用户':'添加用户'"
+      :title="isEdit?'编辑图书':'添加图书'"
       :visible.sync="dialogVisible"
       width="40%"
     >
       <el-form
-        ref="adminForm"
-        :model="admin"
+        ref="bookForm"
+        :model="book"
         label-width="150px"
         size="small"
       >
-        <el-form-item label="帐号：">
-          <el-input v-model="admin.username" style="width: 250px" />
+        <el-form-item label="名称：">
+          <el-input v-model="book.name" style="width: 250px" />
         </el-form-item>
-        <el-form-item label="昵称：">
-          <el-input v-model="admin.nickName" style="width: 250px" />
+        <el-form-item label="封面：">
+          <el-upload
+            class="avatar-uploader"
+            action="http://localhost:9090/bms/upload"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="book.img" :src="book.img" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon" />
+          </el-upload>
         </el-form-item>
-        <el-form-item label="邮箱：">
-          <el-input v-model="admin.email" style="width: 250px" />
+        <el-form-item label="作者：">
+          <el-input v-model="book.author" style="width: 250px" />
         </el-form-item>
-        <el-form-item label="密码：">
-          <el-input v-model="admin.password" type="password" style="width: 250px" />
+        <el-form-item label="价格：">
+          <el-input v-model="book.price" style="width: 250px" />
+        </el-form-item>
+        <el-form-item label="分类：">
+          <el-input v-model="book.category" style="width: 250px" />
+        </el-form-item>
+        <el-form-item label="出版社：">
+          <el-input v-model="book.press" style="width: 250px" />
+        </el-form-item>
+        <el-form-item label="出版时间：">
+          <el-date-picker v-model="book.publicationDate" type="date" placeholder="选择日期" style="width: 250px" />
+        </el-form-item>
+        <el-form-item label="库存：">
+          <el-input v-model="book.stock" style="width: 250px" />
         </el-form-item>
         <el-form-item label="是否启用：">
-          <el-radio-group v-model="admin.status">
-            <el-radio :label="1">是</el-radio>
+          <el-radio-group v-model="book.status">
             <el-radio :label="0">否</el-radio>
+            <el-radio :label="1">是</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -140,24 +172,29 @@
 <script>
 
 import { formatDate } from '@/utils/date'
-import { fetchList, updateStatus, updateAdmin, createAdmin } from '@/api/user'
+import { fetchList, updateBook, createBook, deleteBook } from '@/api/book'
 
 const defaultListQuery = {
   pageNum: 1,
   pageSize: 10,
-  keyword: null
+  name: null,
+  status: null,
+  press: null
 }
-const defaultAdmin = {
+const defaultBook = {
   id: null,
-  username: null,
-  password: null,
-  nickName: null,
-  email: null,
-  status: 1,
-  roleId: 0
+  img: null,
+  name: null,
+  author: null,
+  price: null,
+  category: null,
+  press: 1,
+  stock: 0,
+  status: 0,
+  publicationDate: null
 }
 export default {
-  name: 'AdminList',
+  name: 'BookList',
   filters: {
     formatDateTime(time) {
       console.log(time)
@@ -175,17 +212,16 @@ export default {
       total: null,
       listLoading: false,
       dialogVisible: false,
-      admin: Object.assign({}, defaultAdmin),
+      book: Object.assign({}, defaultBook),
       isEdit: false,
       allocDialogVisible: false,
       allocRoleIds: [],
       allRoleList: [],
-      allocAdminId: null
+      allocBookId: null
     }
   },
   created() {
     this.getList()
-    this.getAllRoleList()
   },
   methods: {
     handleResetSearch() {
@@ -207,47 +243,27 @@ export default {
     handleAdd() {
       this.dialogVisible = true
       this.isEdit = false
-      this.admin = Object.assign({}, defaultAdmin)
-    },
-    handleStatusChange(index, row) {
-      this.$confirm('是否要修改该状态?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        updateStatus(row.id, { status: row.status }).then(response => {
-          this.$message({
-            type: 'success',
-            message: '修改成功!'
-          })
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消修改'
-        })
-        this.getList()
-      })
+      this.book = Object.assign({}, defaultBook)
     },
     handleDelete(index, row) {
-      this.$confirm('是否要删除该用户?', '提示', {
+      this.$confirm('是否要删除该图书?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // deleteAdmin(row.id).then(response => {
-        //   this.$message({
-        //     type: 'success',
-        //     message: '删除成功!'
-        //   })
-        //   this.getList()
-        // })
+        deleteBook(row.id).then(response => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.getList()
+        })
       })
     },
     handleUpdate(index, row) {
       this.dialogVisible = true
       this.isEdit = true
-      this.admin = Object.assign({}, row)
+      this.book = Object.assign({}, row)
     },
     handleDialogConfirm() {
       this.$confirm('是否要确认?', '提示', {
@@ -256,7 +272,7 @@ export default {
         type: 'warning'
       }).then(() => {
         if (this.isEdit) {
-          updateAdmin(this.admin.id, this.admin).then(response => {
+          updateBook(this.book.id, this.book).then(response => {
             this.$message({
               message: '修改成功！',
               type: 'success'
@@ -265,7 +281,7 @@ export default {
             this.getList()
           })
         } else {
-          createAdmin(this.admin).then(response => {
+          createBook(this.book).then(response => {
             this.$message({
               message: '添加成功！',
               type: 'success'
@@ -276,56 +292,56 @@ export default {
         }
       })
     },
-    handleAllocDialogConfirm() {
-      this.$confirm('是否要确认?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        const params = new URLSearchParams()
-        params.append('adminId', this.allocAdminId)
-        params.append('roleIds', this.allocRoleIds)
-        // allocRole(params).then(response => {
-        //   this.$message({
-        //     message: '分配成功！',
-        //     type: 'success'
-        //   })
-        //   this.allocDialogVisible = false
-        // })
-      })
-    },
-    handleSelectRole(index, row) {
-      this.allocAdminId = row.id
-      this.allocDialogVisible = true
-      this.getRoleListByAdmin(row.id)
-    },
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.listLoading = false
-        console.log(response)
         this.list = response.result.list
         this.total = response.result.total
       })
     },
-    getAllRoleList() {
-      // fetchAllRoleList().then(response => {
-      //   this.allRoleList = response.data
-      // })
+    handleAvatarSuccess(res, file) {
+      this.book.img = URL.createObjectURL(file.raw)
     },
-    getRoleListByAdmin(adminId) {
-      // getRoleByAdmin(adminId).then(response => {
-      //   const allocRoleList = response.data
-      //   this.allocRoleIds = []
-      //   if (allocRoleList != null && allocRoleList.length > 0) {
-      //     for (let i = 0; i < allocRoleList.length; i++) {
-      //       this.allocRoleIds.push(allocRoleList[i].id)
-      //     }
-      //   }
-      // })
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
     }
   }
 }
 </script>
-<style></style>
+
+<style>
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>
 
