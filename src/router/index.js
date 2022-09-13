@@ -73,12 +73,12 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/oms/order',
     name: 'oms',
-    meta: { title: '商品', icon: 'order' },
+    meta: { title: '订单', icon: 'order' },
     children: [{
       path: 'order',
       name: 'order',
       component: () => import('@/views/oms/order/index'),
-      meta: { title: '商品列表', icon: 'order-list' }
+      meta: { title: '订单列表', icon: 'order-list' }
     }
     ]
   },
