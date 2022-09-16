@@ -59,12 +59,18 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/bms/book',
     name: 'bms',
-    meta: { title: '官方图书', icon: 'book' },
+    meta: { title: '商品', icon: 'book' },
     children: [{
       path: 'book',
       name: 'book',
       component: () => import('@/views/bms/book/index'),
       meta: { title: '图书列表', icon: 'book-list' }
+    },
+    {
+      path: 'carousel',
+      name: 'carousel',
+      component: () => import('@/views/bms/carousel/index'),
+      meta: { title: '资源列表', icon: 'carousel-list' }
     }
     ]
   },

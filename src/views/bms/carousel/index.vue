@@ -1,41 +1,15 @@
 <template>
   <div class="app-container">
-    <el-card class="filter-container" shadow="never">
+    <el-card class="filter-container" style="height: 50px" shadow="never">
       <div>
-        <i class="el-icon-search" />
-        <span>筛选搜索</span>
         <el-button
-          style="float:right"
+          style="float:right; margin-top: -10px"
           type="primary"
           size="small"
           @click="handleSearchList()"
         >
           查询搜索
         </el-button>
-        <el-button
-          style="float:right;margin-right: 15px"
-          size="small"
-          @click="handleResetSearch()"
-        >
-          重置
-        </el-button>
-      </div>
-      <div style="margin-top: 15px">
-        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="图书名称：">
-            <el-input v-model="listQuery.name" class="input-width" placeholder="图书名称" clearable />
-          </el-form-item>
-          <el-form-item label="图书分类：">
-            <el-select v-model="listQuery.category" clearable placeholder="请选择">
-              <el-option
-                v-for="item in bookCateOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </el-form>
       </div>
     </el-card>
     <el-card class="operate-container" shadow="never">
@@ -45,7 +19,7 @@
     </el-card>
     <div class="table-container">
       <el-table
-        ref="bookTable"
+        ref="carouselTable"
         v-loading="listLoading"
         :data="list"
         style="width: 100%;"
@@ -54,28 +28,13 @@
         <el-table-column label="编号" width="100" align="center">
           <template slot-scope="scope">{{ scope.row.id }}</template>
         </el-table-column>
-        <el-table-column label="封面" align="center">
+        <el-table-column label="图片" align="center">
           <template slot-scope="scope">
-            <img :src="scope.row.imgFront" style="width: 50px; height: 50px">
+            <img :src="scope.row.img" style="width: 50px; height: 50px">
           </template>
         </el-table-column>
-        <el-table-column label="名称" align="center">
-          <template slot-scope="scope">{{ scope.row.name }}</template>
-        </el-table-column>
-        <el-table-column label="价格" align="center">
-          <template slot-scope="scope">{{ scope.row.price }}</template>
-        </el-table-column>
-        <el-table-column label="分类" align="center">
-          <template slot-scope="scope">{{ getCategoryName(scope.row.category) }}</template>
-        </el-table-column>
-        <el-table-column label="出版社" align="center">
-          <template slot-scope="scope">{{ scope.row.press }}</template>
-        </el-table-column>
-        <el-table-column label="是否推荐" width="140" align="center">
-          <template slot-scope="scope">{{ scope.row.isHot === 0 ? "否" : "是" }}</template>
-        </el-table-column>
-        <el-table-column label="是否有效" width="140" align="center">
-          <template slot-scope="scope">{{ scope.row.isActive === 0 ? "否" : "是" }}</template>
+        <el-table-column label="顺序" align="center">
+          <template slot-scope="scope">{{ scope.row.sortOrder }}</template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
@@ -114,27 +73,12 @@
       width="40%"
     >
       <el-form
-        ref="bookForm"
-        :model="book"
+        ref="carouselForm"
+        :model="carousel"
         label-width="150px"
         size="small"
       >
-        <el-form-item label="名称：">
-          <el-input v-model="book.name" style="width: 250px" />
-        </el-form-item>
-        <el-form-item label="封面：">
-          <el-upload
-            class="avatar-uploader"
-            action="http://localhost:9090/bms/upload"
-            :show-file-list="false"
-            :on-success="handleFrontAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
-          >
-            <img v-if="book.imgFront" :src="book.imgFront" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon" />
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="背面：">
+        <el-form-item label="图片：">
           <el-upload
             class="avatar-uploader"
             action="http://localhost:9090/bms/upload"
@@ -142,37 +86,12 @@
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
           >
-            <img v-if="book.imgBack" :src="book.imgBack" class="avatar">
+            <img v-if="carousel.img" :src="carousel.img" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>
-        <el-form-item label="价格：">
-          <el-input v-model="book.price" style="width: 250px" />
-        </el-form-item>
-        <el-form-item label="分类：">
-          <el-select v-model="book.category" clearable placeholder="请选择">
-            <el-option
-              v-for="item in bookCateOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="出版社：">
-          <el-input v-model="book.press" style="width: 250px" />
-        </el-form-item>
-        <el-form-item label="是否推荐：">
-          <el-radio-group v-model="book.isHot">
-            <el-radio :label="false">否</el-radio>
-            <el-radio :label="true">是</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="是否启用：">
-          <el-radio-group v-model="book.isActive">
-            <el-radio :label="false">否</el-radio>
-            <el-radio :label="true">是</el-radio>
-          </el-radio-group>
+        <el-form-item label="顺序：">
+          <el-input v-model="carousel.sortOrder" style="width: 250px" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -185,29 +104,19 @@
 <script>
 
 import { formatDate } from '@/utils/date'
-import { fetchList, updateBook, createBook, deleteBook } from '@/api/book'
+import { fetchList, updateCarousel, createCarousel, deleteCarousel } from '@/api/carousel'
 
 const defaultListQuery = {
   pageNum: 1,
-  pageSize: 10,
-  name: null,
-  status: null
+  pageSize: 10
 }
-const defaultBook = {
+const defaultCarousel = {
   id: null,
-  imgFront: null,
-  imgBack: null,
-  name: null,
-  author: null,
-  price: null,
-  category: null,
-  press: 1,
-  stock: 0,
-  status: 0,
-  publicationDate: null
+  img: null,
+  sortOrder: 0
 }
 export default {
-  name: 'BookList',
+  name: 'CarouselList',
   filters: {
     formatDateTime(time) {
       console.log(time)
@@ -225,26 +134,12 @@ export default {
       total: null,
       listLoading: false,
       dialogVisible: false,
-      book: Object.assign({}, defaultBook),
+      carousel: Object.assign({}, defaultCarousel),
       isEdit: false,
       allocDialogVisible: false,
       allocRoleIds: [],
       allRoleList: [],
-      allocBookId: null,
-      bookCateOptions: [
-        {
-          value: 0,
-          label: '官方商品'
-        },
-        {
-          value: 1,
-          label: '二手商品'
-        },
-        {
-          value: 2,
-          label: '拍卖商品'
-        }
-      ]
+      allocCarouselId: null
     }
   },
   created() {
@@ -252,9 +147,9 @@ export default {
   },
   methods: {
     getCategoryName(value) {
-      for (const bookCateOption of this.bookCateOptions) {
-        if (value === bookCateOption.value) {
-          return bookCateOption.label
+      for (const carouselCateOption of this.carouselCateOptions) {
+        if (value === carouselCateOption.value) {
+          return carouselCateOption.label
         }
       }
     },
@@ -277,7 +172,7 @@ export default {
     handleAdd() {
       this.dialogVisible = true
       this.isEdit = false
-      this.book = Object.assign({}, defaultBook)
+      this.carousel = Object.assign({}, defaultCarousel)
     },
     handleDelete(index, row) {
       this.$confirm('是否要删除该图书?', '提示', {
@@ -285,7 +180,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteBook(row.id).then(response => {
+        deleteCarousel(row.id).then(response => {
           this.$message({
             type: 'success',
             message: '删除成功!'
@@ -297,7 +192,7 @@ export default {
     handleUpdate(index, row) {
       this.dialogVisible = true
       this.isEdit = true
-      this.book = Object.assign({}, row)
+      this.carousel = Object.assign({}, row)
     },
     handleDialogConfirm() {
       this.$confirm('是否要确认?', '提示', {
@@ -306,7 +201,7 @@ export default {
         type: 'warning'
       }).then(() => {
         if (this.isEdit) {
-          updateBook(this.book.id, this.book).then(response => {
+          updateCarousel(this.carousel.id, this.carousel).then(response => {
             this.$message({
               message: '修改成功！',
               type: 'success'
@@ -315,7 +210,7 @@ export default {
             this.getList()
           })
         } else {
-          createBook(this.book).then(response => {
+          createCarousel(this.carousel).then(response => {
             this.$message({
               message: '添加成功！',
               type: 'success'
@@ -334,12 +229,8 @@ export default {
         this.total = response.result.total
       })
     },
-    handleFrontAvatarSuccess(res, file) {
-      console.log(res, 'res')
-      this.book.imgFront = 'http://192.168.0.107:9090' + res.result
-    },
     handleAvatarSuccess(res, file) {
-      this.book.imgBack = 'http://192.168.0.107:9090' + res.result
+      this.carousel.img = 'http://192.168.0.107:9090' + res.result
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg'
