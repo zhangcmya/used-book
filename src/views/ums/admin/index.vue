@@ -22,7 +22,7 @@
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="输入搜索：">
+          <el-form-item label="账号：">
             <el-input v-model="listQuery.username" class="input-width" placeholder="帐号" clearable />
           </el-form-item>
         </el-form>
@@ -47,18 +47,15 @@
         <el-table-column label="帐号" align="center">
           <template slot-scope="scope">{{ scope.row.username }}</template>
         </el-table-column>
-        <el-table-column label="昵称" align="center">
-          <template slot-scope="scope">{{ scope.row.nickName }}</template>
+        <el-table-column label="余额" align="center">
+          <template slot-scope="scope">{{ scope.row.balance }}</template>
         </el-table-column>
-        <el-table-column label="邮箱" align="center">
-          <template slot-scope="scope">{{ scope.row.email }}</template>
+        <el-table-column label="积分" align="center">
+          <template slot-scope="scope">{{ scope.row.points }}</template>
         </el-table-column>
         <el-table-column label="添加时间" width="160" align="center">
           <template slot-scope="scope">{{ scope.row.createTime | formatDateTime }}</template>
         </el-table-column>
-<!--        <el-table-column label="最后登录" width="160" align="center">-->
-<!--          <template slot-scope="scope">{{ scope.row.loginTime | formatDateTime }}</template>-->
-<!--        </el-table-column>-->
         <el-table-column label="是否启用" width="140" align="center">
           <template slot-scope="scope">
             <el-switch
@@ -114,14 +111,14 @@
         <el-form-item label="帐号：">
           <el-input v-model="admin.username" style="width: 250px" />
         </el-form-item>
-        <el-form-item label="昵称：">
-          <el-input v-model="admin.nickName" style="width: 250px" />
-        </el-form-item>
-        <el-form-item label="邮箱：">
-          <el-input v-model="admin.email" style="width: 250px" />
-        </el-form-item>
         <el-form-item label="密码：">
           <el-input v-model="admin.password" type="password" style="width: 250px" />
+        </el-form-item>
+        <el-form-item label="余额：">
+          <el-input v-model="admin.balance" style="width: 250px" />
+        </el-form-item>
+        <el-form-item label="积分：">
+          <el-input v-model="admin.points" style="width: 250px" />
         </el-form-item>
         <el-form-item label="是否启用：">
           <el-radio-group v-model="admin.status">
@@ -140,7 +137,7 @@
 <script>
 
 import { formatDate } from '@/utils/date'
-import { fetchList, updateStatus, updateAdmin, createAdmin } from '@/api/user'
+import { fetchList, updateStatus, updateAdmin, createAdmin, deleteAdmin } from '@/api/user'
 
 const defaultListQuery = {
   pageNum: 1,
@@ -235,13 +232,13 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // deleteAdmin(row.id).then(response => {
-        //   this.$message({
-        //     type: 'success',
-        //     message: '删除成功!'
-        //   })
-        //   this.getList()
-        // })
+        deleteAdmin(row.id).then(response => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.getList()
+        })
       })
     },
     handleUpdate(index, row) {

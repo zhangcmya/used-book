@@ -22,8 +22,11 @@
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="订单编号：">
-            <el-input v-model="listQuery.id" class="input-width" placeholder="订单编号" clearable />
+          <el-form-item label="用户名称：">
+            <el-input v-model="listQuery.userName" class="input-width" placeholder="用户名称" clearable />
+          </el-form-item>
+          <el-form-item label="标题：">
+            <el-input v-model="listQuery.title" class="input-width" placeholder="标题" clearable />
           </el-form-item>
         </el-form>
       </div>
@@ -34,11 +37,11 @@
     </el-card>
     <div class="table-container">
       <el-table
-        ref="orderTable"
+        ref="forumTable"
         v-loading="listLoading"
         :data="list"
         style="width: 100%;"
-        border
+        bforum
       >
         <el-table-column label="编号" width="100" align="center">
           <template slot-scope="scope">{{ scope.row.id }}</template>
@@ -46,14 +49,11 @@
         <el-table-column label="用户名称" align="center">
           <template slot-scope="scope">{{ scope.row.userName }}</template>
         </el-table-column>
-        <el-table-column label="状态" align="center">
-          <template slot-scope="scope">{{ scope.row.status === 1 ? '已付款' : '未收获' }}</template>
+        <el-table-column label="标题" align="center">
+          <template slot-scope="scope">{{ scope.row.title }}</template>
         </el-table-column>
-        <el-table-column label="价格" align="center">
-          <template slot-scope="scope">{{ scope.row.price }}</template>
-        </el-table-column>
-        <el-table-column label="收获地址" align="center">
-          <template slot-scope="scope">{{ scope.row.streetName }}</template>
+        <el-table-column label="内容" align="center">
+          <template slot-scope="scope">{{ scope.row.content }}</template>
         </el-table-column>
         <el-table-column label="添加时间" width="160" align="center">
           <template slot-scope="scope">{{ scope.row.createTime | formatDateTime }}</template>
@@ -87,14 +87,16 @@
 <script>
 
 import { formatDate } from '@/utils/date'
-import { fetchList, deleteOrder } from '@/api/order'
+import { fetchList, deleteForum } from '@/api/forum'
 
 const defaultListQuery = {
   pageNum: 1,
   pageSize: 10,
-  id: null
+  userName: null,
+  title: null,
+  category: 1
 }
-const defaultOrder = {
+const defaultForum = {
   id: null,
   bookId: null,
   bookName: null,
@@ -105,7 +107,7 @@ const defaultOrder = {
   createTime: null
 }
 export default {
-  name: 'OrderList',
+  name: 'ForumList',
   filters: {
     formatDateTime(time) {
       console.log(time)
@@ -123,11 +125,11 @@ export default {
       total: null,
       listLoading: false,
       dialogVisible: false,
-      order: Object.assign({}, defaultOrder),
+      forum: Object.assign({}, defaultForum),
       allocDialogVisible: false,
       allocRoleIds: [],
       allRoleList: [],
-      allocOrderId: null
+      allocForumId: null
     }
   },
   created() {
@@ -156,7 +158,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteOrder(row.id).then(response => {
+        deleteForum(row.id).then(response => {
           this.$message({
             type: 'success',
             message: '删除成功!'
@@ -179,14 +181,14 @@ export default {
 
 <style>
 .avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
+  bforum: 1px dashed #d9d9d9;
+  bforum-radius: 6px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
 }
 .avatar-uploader .el-upload:hover {
-  border-color: #409EFF;
+  bforum-color: #409EFF;
 }
 .avatar-uploader-icon {
   font-size: 28px;

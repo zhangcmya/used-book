@@ -22,18 +22,8 @@
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="图书名称：">
-            <el-input v-model="listQuery.name" class="input-width" placeholder="图书名称" clearable />
-          </el-form-item>
-          <el-form-item label="图书分类：">
-            <el-select v-model="listQuery.category" clearable placeholder="请选择">
-              <el-option
-                v-for="item in bookCateOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+          <el-form-item label="商品名称：">
+            <el-input v-model="listQuery.name" class="input-width" placeholder="商品名称" clearable />
           </el-form-item>
         </el-form>
       </div>
@@ -62,19 +52,16 @@
         <el-table-column label="名称" align="center">
           <template slot-scope="scope">{{ scope.row.name }}</template>
         </el-table-column>
+        <el-table-column label="标题" align="center">
+          <template slot-scope="scope">{{ scope.row.subName }}</template>
+        </el-table-column>
         <el-table-column label="价格" align="center">
           <template slot-scope="scope">{{ scope.row.price }}</template>
         </el-table-column>
-        <el-table-column label="分类" align="center">
-          <template slot-scope="scope">{{ getCategoryName(scope.row.category) }}</template>
-        </el-table-column>
-        <el-table-column label="出版社" align="center">
-          <template slot-scope="scope">{{ scope.row.press }}</template>
-        </el-table-column>
         <el-table-column label="是否推荐" width="140" align="center">
-          <template slot-scope="scope">{{ scope.row.isHot === 0 ? "否" : "是" }}</template>
+          <template slot-scope="scope">{{ scope.row.isHot === false ? "否" : "是" }}</template>
         </el-table-column>
-        <el-table-column label="是否有效" width="140" align="center">
+        <el-table-column label="是否上架" width="140" align="center">
           <template slot-scope="scope">{{ scope.row.isActive === 0 ? "否" : "是" }}</template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
@@ -122,6 +109,9 @@
         <el-form-item label="名称：">
           <el-input v-model="book.name" style="width: 250px" />
         </el-form-item>
+        <el-form-item label="标题：">
+          <el-input v-model="book.subName" style="width: 250px" />
+        </el-form-item>
         <el-form-item label="封面：">
           <el-upload
             class="avatar-uploader"
@@ -148,19 +138,6 @@
         </el-form-item>
         <el-form-item label="价格：">
           <el-input v-model="book.price" style="width: 250px" />
-        </el-form-item>
-        <el-form-item label="分类：">
-          <el-select v-model="book.category" clearable placeholder="请选择">
-            <el-option
-              v-for="item in bookCateOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="出版社：">
-          <el-input v-model="book.press" style="width: 250px" />
         </el-form-item>
         <el-form-item label="是否推荐：">
           <el-radio-group v-model="book.isHot">
@@ -191,7 +168,7 @@ const defaultListQuery = {
   pageNum: 1,
   pageSize: 10,
   name: null,
-  status: null
+  category: 0
 }
 const defaultBook = {
   id: null,
@@ -200,8 +177,8 @@ const defaultBook = {
   name: null,
   author: null,
   price: null,
-  category: null,
-  press: 1,
+  category: 0,
+  press: null,
   stock: 0,
   status: 0,
   publicationDate: null
@@ -230,34 +207,13 @@ export default {
       allocDialogVisible: false,
       allocRoleIds: [],
       allRoleList: [],
-      allocBookId: null,
-      bookCateOptions: [
-        {
-          value: 0,
-          label: '官方商品'
-        },
-        {
-          value: 1,
-          label: '二手商品'
-        },
-        {
-          value: 2,
-          label: '拍卖商品'
-        }
-      ]
+      allocBookId: null
     }
   },
   created() {
     this.getList()
   },
   methods: {
-    getCategoryName(value) {
-      for (const bookCateOption of this.bookCateOptions) {
-        if (value === bookCateOption.value) {
-          return bookCateOption.label
-        }
-      }
-    },
     handleResetSearch() {
       this.listQuery = Object.assign({}, defaultListQuery)
     },
@@ -336,10 +292,10 @@ export default {
     },
     handleFrontAvatarSuccess(res, file) {
       console.log(res, 'res')
-      this.book.imgFront = 'http://192.168.0.107:9090' + res.result
+      this.book.imgFront = 'http://192.168.12.66:9090' + res.result
     },
     handleAvatarSuccess(res, file) {
-      this.book.imgBack = 'http://192.168.0.107:9090' + res.result
+      this.book.imgBack = 'http://192.168.12.66:9090' + res.result
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg'

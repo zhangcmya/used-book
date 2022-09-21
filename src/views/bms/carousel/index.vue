@@ -230,7 +230,7 @@ export default {
       })
     },
     handleAvatarSuccess(res, file) {
-      this.carousel.img = 'http://192.168.0.107:9090' + res.result
+      this.carousel.img = 'http://192.168.12.66:9090' + res.result
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg'

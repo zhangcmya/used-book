@@ -64,7 +64,13 @@ export const constantRoutes = [
       path: 'book',
       name: 'book',
       component: () => import('@/views/bms/book/index'),
-      meta: { title: '图书列表', icon: 'book-list' }
+      meta: { title: '官方商品', icon: 'book-list' }
+    },
+    {
+      path: 'used',
+      name: 'used',
+      component: () => import('@/views/bms/used/index'),
+      meta: { title: '二手商品', icon: 'used-list' }
     },
     {
       path: 'carousel',
@@ -85,6 +91,26 @@ export const constantRoutes = [
       name: 'order',
       component: () => import('@/views/oms/order/index'),
       meta: { title: '订单列表', icon: 'order-list' }
+    }
+    ]
+  },
+  {
+    path: '/fms',
+    component: Layout,
+    redirect: '/fms/forum',
+    name: 'fms',
+    meta: { title: '论坛', icon: 'forum' },
+    children: [{
+      path: 'forum',
+      name: 'forum',
+      component: () => import('@/views/fms/forum/index'),
+      meta: { title: '论坛', icon: 'forum-list' }
+    },
+    {
+      path: 'post',
+      name: 'post',
+      component: () => import('@/views/fms/post/index'),
+      meta: { title: '求购帖', icon: 'post-list' }
     }
     ]
   },

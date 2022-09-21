@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/user'
-import { getId, getToken, setToken, removeToken } from '@/utils/auth'
+import { getId, getToken, setToken, removeToken, setId } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -41,8 +41,9 @@ const actions = {
         commit('SET_TOKEN', data.token)
         commit('SET_ID', data.id)
         commit('SET_NAME', data.username)
+        commit('SET_AVATAR', data.icon)
         setToken(data.token)
-        setToken(data.id)
+        setId(data.id)
         resolve()
       }).catch(error => {
         reject(error)
@@ -55,7 +56,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo(state.id).then(response => {
         const data = response.result
-
         if (!data) {
           return reject('Verification failed, please Login again.')
         }

@@ -22,8 +22,8 @@
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
-          <el-form-item label="订单编号：">
-            <el-input v-model="listQuery.id" class="input-width" placeholder="订单编号" clearable />
+          <el-form-item label="商品名称：">
+            <el-input v-model="listQuery.name" class="input-width" placeholder="商品名称" clearable />
           </el-form-item>
         </el-form>
       </div>
@@ -34,7 +34,7 @@
     </el-card>
     <div class="table-container">
       <el-table
-        ref="orderTable"
+        ref="bookTable"
         v-loading="listLoading"
         :data="list"
         style="width: 100%;"
@@ -43,20 +43,27 @@
         <el-table-column label="编号" width="100" align="center">
           <template slot-scope="scope">{{ scope.row.id }}</template>
         </el-table-column>
-        <el-table-column label="用户名称" align="center">
+        <el-table-column label="用户名称" width="100" align="center">
           <template slot-scope="scope">{{ scope.row.userName }}</template>
         </el-table-column>
-        <el-table-column label="状态" align="center">
-          <template slot-scope="scope">{{ scope.row.status === 1 ? '已付款' : '未收获' }}</template>
+        <el-table-column label="封面" align="center">
+          <template slot-scope="scope">
+            <img :src="scope.row.imgFront" style="width: 50px; height: 50px">
+          </template>
+        </el-table-column>
+        <el-table-column label="背面" align="center">
+          <template slot-scope="scope">
+            <img :src="scope.row.imgBack" style="width: 50px; height: 50px">
+          </template>
+        </el-table-column>
+        <el-table-column label="名称" align="center">
+          <template slot-scope="scope">{{ scope.row.name }}</template>
         </el-table-column>
         <el-table-column label="价格" align="center">
           <template slot-scope="scope">{{ scope.row.price }}</template>
         </el-table-column>
-        <el-table-column label="收获地址" align="center">
-          <template slot-scope="scope">{{ scope.row.streetName }}</template>
-        </el-table-column>
-        <el-table-column label="添加时间" width="160" align="center">
-          <template slot-scope="scope">{{ scope.row.createTime | formatDateTime }}</template>
+        <el-table-column label="是否推荐" width="140" align="center">
+          <template slot-scope="scope">{{ scope.row.isHot === 0 ? "否" : "是" }}</template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
@@ -87,25 +94,16 @@
 <script>
 
 import { formatDate } from '@/utils/date'
-import { fetchList, deleteOrder } from '@/api/order'
+import { fetchList, deleteBook } from '@/api/book'
 
 const defaultListQuery = {
   pageNum: 1,
   pageSize: 10,
-  id: null
-}
-const defaultOrder = {
-  id: null,
-  bookId: null,
-  bookName: null,
-  userId: null,
-  userName: null,
-  price: null,
-  status: null,
-  createTime: null
+  name: null,
+  category: 1
 }
 export default {
-  name: 'OrderList',
+  name: 'BookList',
   filters: {
     formatDateTime(time) {
       console.log(time)
@@ -123,11 +121,11 @@ export default {
       total: null,
       listLoading: false,
       dialogVisible: false,
-      order: Object.assign({}, defaultOrder),
+      isEdit: false,
       allocDialogVisible: false,
       allocRoleIds: [],
       allRoleList: [],
-      allocOrderId: null
+      allocBookId: null
     }
   },
   created() {
@@ -151,12 +149,12 @@ export default {
       this.getList()
     },
     handleDelete(index, row) {
-      this.$confirm('是否要删除该图书?', '提示', {
+      this.$confirm('是否要删除该商品?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteOrder(row.id).then(response => {
+        deleteBook(row.id).then(response => {
           this.$message({
             type: 'success',
             message: '删除成功!'

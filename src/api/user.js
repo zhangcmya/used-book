@@ -15,10 +15,10 @@ export function getInfo(id) {
   })
 }
 
-export function logout() {
+export function logout(token) {
   return request({
-    url: '/vue-admin-template/user/logout',
-    method: 'post'
+    url: '/users/loginOut?token=' + token,
+    method: 'get'
   })
 }
 
@@ -51,5 +51,12 @@ export function updateAdmin(id, data) {
     url: '/ums/' + id,
     method: 'put',
     data: data
+  })
+}
+
+export function deleteAdmin(id) {
+  return request({
+    url: '/ums/' + id,
+    method: 'delete'
   })
 }
